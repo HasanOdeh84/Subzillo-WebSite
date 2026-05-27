@@ -21,6 +21,17 @@
 
 <!-- Theme color -->
 <meta name="theme-color" content="#07040F"/>
+
+<!-- Favicon -->
+<link rel="icon" href="logo-favicon.png" type="image/png" sizes="64x64"/>
+<link rel="apple-touch-icon" href="logo-favicon.png"/>
+
+<!-- OG image -->
+<meta property="og:image" content="https://subzillo.com/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:image" content="https://subzillo.com/og-image.png"/>
+
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -36,8 +47,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 img { max-width: 100%; display: block; }
-button { font-family: inherit; cursor: pointer; border: none; outline: none; }
-a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; touch-action: manipulation; }
+a { color: inherit; text-decoration: none; touch-action: manipulation; }
+:focus-visible { outline: 2px solid rgba(167,25,221,0.75); outline-offset: 3px; border-radius: 4px; }
+
+/* ── Skip to content (keyboard a11y) ─────────────────────── */
+.skip-link {
+  position: fixed; top: -100px; left: 20px; z-index: 99999;
+  background: var(--grad, linear-gradient(135deg,#A719DD,#4489EB));
+  color: #fff; padding: 10px 20px; border-radius: 0 0 12px 12px;
+  font-size: 14px; font-weight: 700; text-decoration: none;
+  box-shadow: 0 4px 20px rgba(167,25,221,0.4);
+  transition: top 0.2s;
+}
+.skip-link:focus { top: 0; }
 
 /* ── CSS Variables ────────────────────────────────────────── */
 :root {
@@ -125,10 +148,14 @@ section[id] { scroll-margin-top: 90px; }
   font-size: 18px; font-weight: 700; letter-spacing: -0.4px;
 }
 .nav-logo-icon {
-  width: 32px; height: 32px; border-radius: 9px;
-  background: var(--grad);
+  width: 36px; height: 36px;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 16px var(--glow);
+  flex-shrink: 0;
+}
+.nav-logo-icon img {
+  width: 36px; height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(78,197,232,0.35));
 }
 .nav-links {
   display: flex; align-items: center; gap: 28px;
@@ -1277,6 +1304,62 @@ h1.hero-h1 em {
   letter-spacing: 0.3px;
 }
 
+/* ── Referral teaser (generic pre-launch) ─────────────────── */
+.ref-teaser {
+  position: relative;
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 52px 48px;
+  border-radius: 28px;
+  background: linear-gradient(160deg, rgba(167,25,221,0.08), rgba(68,137,235,0.05));
+  border: 1px solid rgba(167,25,221,0.2);
+  text-align: center;
+  overflow: hidden;
+  z-index: 1;
+}
+.ref-teaser-glow {
+  position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
+  width: 500px; height: 300px;
+  background: radial-gradient(ellipse, rgba(167,25,221,0.18), transparent 65%);
+  filter: blur(40px); pointer-events: none; z-index: 0;
+}
+.ref-teaser-pills {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 36px;
+}
+.ref-teaser-pill {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.ref-teaser-pill-icon {
+  width: 56px; height: 56px; border-radius: 16px; border: 1px solid;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.ref-teaser-pill-label {
+  font-size: 13px; font-weight: 600; color: var(--textDim);
+}
+.ref-teaser-arrow {
+  margin-bottom: 24px; flex-shrink: 0;
+}
+.ref-teaser-note {
+  position: relative; z-index: 1;
+  display: inline-flex; align-items: flex-start; gap: 8px;
+  padding: 12px 20px; border-radius: 12px;
+  background: rgba(92,228,168,0.06);
+  border: 1px solid rgba(92,228,168,0.18);
+  font-size: 13.5px; color: var(--textDim);
+  line-height: 1.55; text-align: left;
+  max-width: 480px;
+}
+.ref-teaser-note svg { flex-shrink: 0; margin-top: 2px; }
+
+@media (max-width: 600px) {
+  .ref-teaser { padding: 36px 24px; }
+  .ref-teaser-arrow { display: none; }
+  .ref-teaser-pills { gap: 20px; }
+}
+
 @media (max-width: 900px) {
   .referrals-inner { grid-template-columns: 1fr; gap: 40px; }
   .ref-matrix-row { grid-template-columns: 1fr; gap: 6px; padding: 16px 22px; }
@@ -1656,7 +1739,127 @@ footer {
   .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
   .stat-item:last-child { border-bottom: none; }
   nav#nav .nav-links { display: none; }
+  nav#nav .nav-cta { display: none; }
   /* footer responsive handled in new footer styles */
+}
+
+/* ── Hamburger button ─────────────────────────────────────── */
+.nav-hamburger {
+  display: flex;
+  flex-direction: column; justify-content: center; align-items: center;
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  cursor: pointer; gap: 5px;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+.nav-hamburger:hover { background: rgba(255,255,255,0.09); border-color: var(--borderHi); }
+.nav-hamburger span {
+  display: block; width: 18px; height: 2px;
+  background: var(--text); border-radius: 2px;
+  transition: transform 0.28s cubic-bezier(.4,0,.2,1), opacity 0.2s;
+}
+.nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+@media (min-width: 901px) { .nav-hamburger { display: none; } }
+
+/* ── Mobile nav drawer ────────────────────────────────────── */
+.nav-drawer {
+  position: fixed; inset: 0; z-index: calc(var(--z-nav) - 1);
+  pointer-events: none;
+}
+.nav-drawer-overlay {
+  position: absolute; inset: 0;
+  background: rgba(7,4,15,0.75);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity 0.3s;
+}
+.nav-drawer-panel {
+  position: absolute; top: 0; right: 0;
+  width: min(320px, 85vw); height: 100%;
+  background: #0E0820;
+  border-left: 1px solid var(--border);
+  padding: 88px 24px 40px;
+  display: flex; flex-direction: column; gap: 4px;
+  transform: translateX(100%);
+  transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+  box-shadow: -20px 0 60px rgba(0,0,0,0.55);
+  overflow-y: auto;
+}
+.nav-drawer.open { pointer-events: all; }
+.nav-drawer.open .nav-drawer-overlay { opacity: 1; }
+.nav-drawer.open .nav-drawer-panel { transform: translateX(0); }
+.nav-drawer-link {
+  display: block; padding: 13px 16px; border-radius: 12px;
+  font-size: 16px; font-weight: 600; color: var(--textDim);
+  transition: background 0.18s, color 0.18s;
+}
+.nav-drawer-link:hover { background: rgba(255,255,255,0.06); color: var(--text); }
+.nav-drawer-sep { height: 1px; background: var(--border); margin: 12px 0; }
+.nav-drawer-cta {
+  margin-top: 8px; height: 52px; border-radius: 14px;
+  background: var(--grad); color: #fff;
+  font-family: inherit; font-size: 15px; font-weight: 700;
+  box-shadow: 0 6px 24px var(--glow);
+  transition: opacity 0.2s, transform 0.15s;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: none; width: 100%;
+}
+.nav-drawer-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+
+/* ══════════════════════════════════════════════════════════ */
+/* FAQ                                                         */
+/* ══════════════════════════════════════════════════════════ */
+#faq { padding: 100px 0; }
+.faq-header { text-align: center; margin-bottom: 56px; }
+.faq-header h2 {
+  font-size: clamp(30px, 4vw, 48px); font-weight: 800;
+  letter-spacing: -1.8px; line-height: 1.05; margin-bottom: 14px;
+}
+.faq-header p { font-size: 16px; color: var(--textDim); max-width: 480px; margin: 0 auto; line-height: 1.6; }
+
+.faq-list { max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
+
+.faq-item {
+  border-radius: 18px;
+  background: rgba(255,255,255,0.035);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: border-color 0.25s;
+}
+.faq-item.open {
+  border-color: rgba(167,25,221,0.3);
+  background: rgba(167,25,221,0.04);
+}
+.faq-trigger {
+  width: 100%; display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 22px 26px; cursor: pointer; text-align: left;
+  background: none; border: none; font-family: inherit;
+  color: var(--text); transition: background 0.18s;
+}
+.faq-trigger:hover { background: rgba(255,255,255,0.03); }
+.faq-question { font-size: 16px; font-weight: 600; line-height: 1.4; flex: 1; }
+.faq-icon {
+  width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s, border-color 0.2s, transform 0.28s;
+}
+.faq-item.open .faq-icon {
+  background: rgba(167,25,221,0.2); border-color: rgba(167,25,221,0.35);
+  transform: rotate(45deg);
+}
+.faq-body {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.38s cubic-bezier(.4,0,.2,1), padding 0.28s;
+}
+.faq-item.open .faq-body { max-height: 300px; }
+.faq-answer {
+  padding: 0 26px 22px; font-size: 15px; color: var(--textDim);
+  line-height: 1.7; border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 16px; margin-top: 0;
 }
 @media (max-width: 560px) {
   .bento { grid-template-columns: 1fr; }
@@ -3146,6 +3349,9 @@ footer {
 </head>
 <body>
 
+<!-- Skip to main content (keyboard accessibility) -->
+<a href="#hero" class="skip-link">Skip to main content</a>
+
 <!-- Scroll Progress Bar -->
 <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
@@ -3161,11 +3367,8 @@ footer {
 <!-- ── NAV ───────────────────────────────────────────────── -->
 <nav id="nav" role="navigation" aria-label="Main navigation">
   <a href="#" class="nav-logo" aria-label="Subzillo home">
-    <div class="nav-logo-icon" aria-hidden="true">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M12 3C9 3 6 5 6 8c0 2 1 3.5 3 4.5L12 14l3-1.5c2-1 3-2.5 3-4.5 0-3-3-5-6-5z" fill="white" opacity="0.9"/>
-        <path d="M8 15l-2 4h12l-2-4" fill="white" opacity="0.5"/>
-      </svg>
+    <div class="nav-logo-icon">
+      <img src="logo-transparent.png" alt="Subzillo logo" width="36" height="36"/>
     </div>
     Subzillo
   </a>
@@ -3179,7 +3382,27 @@ footer {
   <button class="nav-cta" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">
     Get early access
   </button>
+  <button class="nav-hamburger" id="navHamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDrawer">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- ── MOBILE NAV DRAWER ──────────────────────────────────── -->
+<div class="nav-drawer" id="navDrawer" aria-hidden="true">
+  <div class="nav-drawer-overlay" id="navDrawerOverlay"></div>
+  <div class="nav-drawer-panel" role="dialog" aria-modal="true" aria-label="Navigation menu">
+    <a class="nav-drawer-link" href="#features"  onclick="closeNavDrawer()">Features</a>
+    <a class="nav-drawer-link" href="#ai-browser" onclick="closeNavDrawer()">AI Browser</a>
+    <a class="nav-drawer-link" href="#platforms"  onclick="closeNavDrawer()">Platforms</a>
+    <a class="nav-drawer-link" href="#pricing"    onclick="closeNavDrawer()">Pricing</a>
+    <a class="nav-drawer-link" href="#referrals"  onclick="closeNavDrawer()">Referrals</a>
+    <a class="nav-drawer-link" href="#faq"        onclick="closeNavDrawer()">FAQ</a>
+    <div class="nav-drawer-sep"></div>
+    <button class="nav-drawer-cta" onclick="closeNavDrawer();setTimeout(()=>document.getElementById('waitlist').scrollIntoView({behavior:'smooth'}),200)">
+      Get early access
+    </button>
+  </div>
+</div>
 
 <!-- ── HERO ──────────────────────────────────────────────── -->
 <section id="hero">
@@ -4348,113 +4571,133 @@ footer {
   <div class="container">
     <div class="referrals-header">
       <div class="section-label reveal">Referrals &amp; rewards</div>
-      <h2 class="reveal reveal-delay-1">Invite friends.<br/><span class="referrals-grad">Unlock more slots.</span></h2>
-      <p class="reveal reveal-delay-2">Share your invite link. Every friend who joins unlocks bonus subscription slots — on you and them. Both tiers grow together.</p>
+      <h2 class="reveal reveal-delay-1">Invite friends.<br/><span class="referrals-grad">Unlock more.</span></h2>
+      <p class="reveal reveal-delay-2">Subzillo has a built-in referral program. Invite people you know and both of you benefit — full details and rewards are revealed at launch.</p>
     </div>
 
-    <div class="referrals-inner">
+    <!-- Generic teaser card -->
+    <div class="ref-teaser reveal reveal-delay-2">
+      <div class="ref-teaser-glow" aria-hidden="true"></div>
 
-      <!-- LEFT: 3-step flow -->
-      <div class="referrals-steps reveal reveal-delay-3">
-        <div class="ref-step">
-          <div class="ref-step-num">01</div>
-          <div class="ref-step-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>
+      <div class="ref-teaser-pills">
+        <div class="ref-teaser-pill">
+          <div class="ref-teaser-pill-icon" style="background:linear-gradient(135deg,rgba(167,25,221,0.25),rgba(68,137,235,0.18));border-color:rgba(167,25,221,0.3)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C96BFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v13"/></svg>
           </div>
-          <div class="ref-step-title">Share your link</div>
-          <div class="ref-step-desc">Every account gets a unique invite link. Send by message, social, or copy and paste.</div>
+          <div class="ref-teaser-pill-label">Share your link</div>
         </div>
-
-        <div class="ref-step">
-          <div class="ref-step-num">02</div>
-          <div class="ref-step-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
-          </div>
-          <div class="ref-step-title">Friend joins</div>
-          <div class="ref-step-desc">They sign up for any plan — Free, Silver or Gold. They get a bonus slot to start.</div>
+        <div class="ref-teaser-arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(244,241,251,0.25)" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </div>
-
-        <div class="ref-step">
-          <div class="ref-step-num">03</div>
-          <div class="ref-step-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4L2 9.4h7.6L12 2z"/></svg>
+        <div class="ref-teaser-pill">
+          <div class="ref-teaser-pill-icon" style="background:linear-gradient(135deg,rgba(68,137,235,0.25),rgba(124,92,204,0.18));border-color:rgba(68,137,235,0.3)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7C9FEB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
           </div>
-          <div class="ref-step-title">You earn slots</div>
-          <div class="ref-step-desc">Watch your subscription cap grow with every invite. Stack rewards forever, no limit.</div>
+          <div class="ref-teaser-pill-label">Friends join</div>
         </div>
-      </div>
-
-      <!-- RIGHT: Simple invite link + concept visual -->
-      <div class="referrals-mock reveal reveal-delay-2">
-        <div class="ref-card">
-          <div class="ref-card-eyebrow">Your invite link</div>
-          <div class="ref-card-link-row">
-            <div class="ref-card-link">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 13a5 5 0 007 0l4-4a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-4 4a5 5 0 007 7l1-1"/></svg>
-              <span>subzillo.com/r/<strong>yourname</strong></span>
-            </div>
-            <button class="ref-card-copy" type="button" aria-label="Copy link">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-              Copy
-            </button>
+        <div class="ref-teaser-arrow" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(244,241,251,0.25)" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </div>
+        <div class="ref-teaser-pill">
+          <div class="ref-teaser-pill-icon" style="background:linear-gradient(135deg,rgba(255,203,92,0.25),rgba(255,140,0,0.18));border-color:rgba(255,203,92,0.35)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFCB5C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4-6.2-4.5-6.2 4.5 2.4-7.4L2 9.4h7.6L12 2z"/></svg>
           </div>
-
-          <!-- High-level concept tiles instead of fake stats -->
-          <div class="ref-concept-grid">
-            <div class="ref-concept-tile">
-              <div class="ref-concept-icon" style="background:linear-gradient(135deg, rgba(167,25,221,0.20), rgba(68,137,235,0.16)); border-color: rgba(167,25,221,0.30);">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C96BFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
-              </div>
-              <div class="ref-concept-title">Invite friends</div>
-              <div class="ref-concept-desc">Share your unique link anywhere</div>
-            </div>
-            <div class="ref-concept-tile">
-              <div class="ref-concept-icon" style="background:linear-gradient(135deg, rgba(255,203,92,0.22), rgba(255,165,0,0.16)); border-color: rgba(255,203,92,0.35);">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFCB5C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.39 4.84 5.34.78-3.86 3.76.91 5.31L12 14.27 7.22 16.7l.91-5.31L4.27 7.62l5.34-.78L12 2z"/></svg>
-              </div>
-              <div class="ref-concept-title">Earn rewards</div>
-              <div class="ref-concept-desc">Bonus slots &amp; free months</div>
-            </div>
-          </div>
-
-          <!-- Generic message instead of specific milestone -->
-          <div class="ref-card-tagline">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5CE4A8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
-            <span>Stack forever · the more you invite, the more you unlock</span>
-          </div>
+          <div class="ref-teaser-pill-label">You both earn</div>
         </div>
       </div>
 
-    </div>
-
-    <!-- Reward summary per tier (high level) -->
-    <div class="referrals-matrix reveal">
-      <div class="ref-matrix-header">Every plan earns something</div>
-      <div class="ref-matrix-grid">
-        <div class="ref-matrix-row">
-          <div class="ref-matrix-tier">Free</div>
-          <div class="ref-matrix-reward">
-            <span class="ref-matrix-text">Earn bonus subscription slots when friends join</span>
-          </div>
-        </div>
-        <div class="ref-matrix-row ref-matrix-row-silver">
-          <div class="ref-matrix-tier pricing-tier-silver">Silver</div>
-          <div class="ref-matrix-reward">
-            <span class="ref-matrix-text">More slots per invite · no cap, stack forever</span>
-          </div>
-        </div>
-        <div class="ref-matrix-row ref-matrix-row-gold">
-          <div class="ref-matrix-tier pricing-tier-gold">Gold</div>
-          <div class="ref-matrix-reward">
-            <span class="ref-matrix-text">Unlock free months of Gold the more you invite</span>
-          </div>
-        </div>
-      </div>
-      <div class="ref-matrix-footer">
-        Detailed reward amounts published at launch.
+      <div class="ref-teaser-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5CE4A8" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        Reward details — including exactly what you unlock and how much — will be published at launch.
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- ── FAQ ───────────────────────────────────────────────── -->
+<section id="faq">
+  <div class="container">
+    <div class="faq-header reveal">
+      <div class="section-label">FAQ</div>
+      <h2>Questions? We've got <em style="font-style:italic;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">answers.</em></h2>
+      <p>Everything you need to know before handing your subscriptions over to Subzi AI.</p>
+    </div>
+    <div class="faq-list reveal reveal-delay-1">
+
+      <div class="faq-item" id="faq-1">
+        <button class="faq-trigger" aria-expanded="false" aria-controls="faq-body-1" onclick="toggleFaq(this)">
+          <span class="faq-question">Is my banking data or login credentials ever stored?</span>
+          <span class="faq-icon" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
+          </span>
+        </button>
+        <div class="faq-body" id="faq-body-1" role="region" aria-labelledby="faq-1">
+          <p class="faq-answer">No. Subzillo never stores your passwords or bank credentials. The AI agent uses read-only connections and OAuth tokens for supported services — we only ever see what's necessary to detect and manage your subscriptions. You can revoke access at any time from within the app.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" id="faq-2">
+        <button class="faq-trigger" aria-expanded="false" aria-controls="faq-body-2" onclick="toggleFaq(this)">
+          <span class="faq-question">How does Subzi AI actually cancel subscriptions?</span>
+          <span class="faq-icon" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
+          </span>
+        </button>
+        <div class="faq-body" id="faq-body-2" role="region" aria-labelledby="faq-2">
+          <p class="faq-answer">Subzi is a real AI browser agent — it navigates the service's website, finds the cancellation flow, and completes it on your behalf, exactly as you would do it manually. No bots, no workarounds. You approve each action before it runs, and you get a full activity log after.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" id="faq-3">
+        <button class="faq-trigger" aria-expanded="false" aria-controls="faq-body-3" onclick="toggleFaq(this)">
+          <span class="faq-question">Which platforms will Subzillo support at launch?</span>
+          <span class="faq-icon" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
+          </span>
+        </button>
+        <div class="faq-body" id="faq-body-3" role="region" aria-labelledby="faq-3">
+          <p class="faq-answer">We're launching with iOS and Android apps first, followed by the web app and Chrome &amp; Firefox extensions — all within 2026. Early access members will get first access to each platform as they ship, and your account works across all of them from day one.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" id="faq-4">
+        <button class="faq-trigger" aria-expanded="false" aria-controls="faq-body-4" onclick="toggleFaq(this)">
+          <span class="faq-question">Is there a free plan?</span>
+          <span class="faq-icon" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
+          </span>
+        </button>
+        <div class="faq-body" id="faq-body-4" role="region" aria-labelledby="faq-4">
+          <p class="faq-answer">Yes — Subzillo Basic is free, forever. You can track and view all your subscriptions at no cost. Subzillo Pro and Gold unlock AI-powered actions like cancellations, negotiation, pausing, and multi-currency tracking. Waitlist members get founding member pricing locked in permanently.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" id="faq-5">
+        <button class="faq-trigger" aria-expanded="false" aria-controls="faq-body-5" onclick="toggleFaq(this)">
+          <span class="faq-question">When will early access open?</span>
+          <span class="faq-icon" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
+          </span>
+        </button>
+        <div class="faq-body" id="faq-body-5" role="region" aria-labelledby="faq-5">
+          <p class="faq-answer">We're targeting a Q2/Q3 2026 early access rollout. Waitlist members get first invites — in signup order — plus exclusive founding pricing that stays locked in even as we grow. Join the waitlist now to secure your spot.</p>
+        </div>
+      </div>
+
+      <div class="faq-item" id="faq-6">
+        <button class="faq-trigger" aria-expanded="false" aria-controls="faq-body-6" onclick="toggleFaq(this)">
+          <span class="faq-question">How does the email scanning feature work?</span>
+          <span class="faq-icon" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 1v10M1 6h10"/></svg>
+          </span>
+        </button>
+        <div class="faq-body" id="faq-body-6" role="region" aria-labelledby="faq-6">
+          <p class="faq-answer">Subzillo only reads emails that match known subscription patterns — receipts, renewal notices, and billing confirmations. We never read, store, or analyse any other emails. The scan runs locally on-device where possible, and you can revoke email access at any time from your account settings.</p>
+        </div>
+      </div>
+
+    </div>
   </div>
 </section>
 
@@ -4509,25 +4752,6 @@ footer {
 </section>
 
 <!-- ── PRESS / RECOGNITION (placeholder section, kept minimal) -->
-<section id="press">
-  <div class="container">
-    <div class="press-strip reveal">
-      <div class="press-strip-label">Built on the technology behind</div>
-      <div class="press-strip-logos">
-        <span class="press-strip-logo">OpenAI</span>
-        <span class="press-strip-dot"></span>
-        <span class="press-strip-logo">Claude</span>
-        <span class="press-strip-dot"></span>
-        <span class="press-strip-logo">Plaid</span>
-        <span class="press-strip-dot"></span>
-        <span class="press-strip-logo">Gmail API</span>
-        <span class="press-strip-dot"></span>
-        <span class="press-strip-logo">Apple Sign In</span>
-      </div>
-    </div>
-
-  </div>
-</section>
 
 <!-- ── FINAL CTA ─────────────────────────────────────────── -->
 <section id="download">
@@ -5300,42 +5524,135 @@ document.querySelectorAll('.bento-card').forEach(card => {
 })();
 
 /* ── Waitlist form handler (with confetti) ──────────────── */
-window.handleWaitlist = function(form) {
+// ── Waitlist form → API ────────────────────────────────────
+window.handleWaitlist = async function(form) {
   const email = form.email.value.trim();
   if (!email) return;
-  const inner = form.closest('.waitlist-inner');
 
-  // Replace form with success state
-  const successHTML = `
-    <div class="waitlist-success">
-      <div class="waitlist-success-icon">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5CE4A8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 12l5 5L20 6"/>
-        </svg>
-      </div>
-      You're on the list — welcome to Subzillo.
-      <div class="waitlist-success-sub">We'll email <strong>${email.replace(/[<>"']/g, '')}</strong> when early access opens.</div>
-    </div>
-  `;
-  form.outerHTML = successHTML;
+  const btn = form.querySelector('button[type="submit"]');
+  const originalHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" style="animation:spin 0.8s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg><span>Sending…</span>';
 
-  // Confetti burst
-  const colors = ['#A719DD', '#4489EB', '#C96BFF', '#5CE4A8', '#FFCB5C'];
-  const confetti = document.getElementById('waitlistConfetti');
-  if (confetti && !reducedMotion) {
-    for (let i = 0; i < 60; i++) {
-      const piece = document.createElement('div');
-      piece.className = 'confetti-piece';
-      piece.style.left = (Math.random() * 100) + '%';
-      piece.style.background = colors[Math.floor(Math.random() * colors.length)];
-      piece.style.animationDelay = (Math.random() * 0.5) + 's';
-      piece.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
-      piece.style.transform = `rotate(${Math.random() * 360}deg)`;
-      confetti.appendChild(piece);
-      setTimeout(() => piece.remove(), 4500);
+  try {
+    const res = await fetch('/api/waitlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+
+    if (!res.ok && !data.success) throw new Error(data.error || 'Server error');
+
+    // Show success state
+    const safeEmail = email.replace(/[<>"'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'}[c]));
+    const msg = data.already
+      ? `You're already on the list — we'll be in touch.`
+      : `You're on the list — welcome to Subzillo.`;
+    const successHTML = `
+      <div class="waitlist-success">
+        <div class="waitlist-success-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5CE4A8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg>
+        </div>
+        ${msg}
+        <div class="waitlist-success-sub">We'll email <strong>${safeEmail}</strong> when early access opens.</div>
+      </div>`;
+    form.outerHTML = successHTML;
+
+    // Confetti
+    if (!data.already) {
+      const colors = ['#A719DD', '#4489EB', '#C96BFF', '#5CE4A8', '#FFCB5C'];
+      const confetti = document.getElementById('waitlistConfetti');
+      if (confetti && !reducedMotion) {
+        for (let i = 0; i < 60; i++) {
+          const p = document.createElement('div');
+          p.className = 'confetti-piece';
+          p.style.cssText = `left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${Math.random()*0.5}s;animation-duration:${2.5+Math.random()*1.5}s;transform:rotate(${Math.random()*360}deg)`;
+          confetti.appendChild(p);
+          setTimeout(() => p.remove(), 4500);
+        }
+      }
     }
+  } catch (err) {
+    btn.disabled = false;
+    btn.innerHTML = originalHTML;
+    // Show inline error
+    let errEl = form.querySelector('.waitlist-error');
+    if (!errEl) {
+      errEl = document.createElement('p');
+      errEl.className = 'waitlist-error';
+      errEl.style.cssText = 'color:#FF5A7A;font-size:13px;margin-top:8px;font-family:var(--mono);text-align:center';
+      form.after(errEl);
+    }
+    errEl.textContent = 'Something went wrong — please try again.';
+    setTimeout(() => errEl.remove(), 4000);
   }
 };
+
+// ── Mobile nav drawer ──────────────────────────────────────
+(function() {
+  const hamburger = document.getElementById('navHamburger');
+  const drawer    = document.getElementById('navDrawer');
+  const overlay   = document.getElementById('navDrawerOverlay');
+  if (!hamburger || !drawer) return;
+
+  window.closeNavDrawer = function() {
+    hamburger.classList.remove('open');
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden', 'true');
+    hamburger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  };
+  function openNavDrawer() {
+    hamburger.classList.add('open');
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden', 'false');
+    hamburger.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+  hamburger.addEventListener('click', () =>
+    drawer.classList.contains('open') ? closeNavDrawer() : openNavDrawer()
+  );
+  overlay.addEventListener('click', closeNavDrawer);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNavDrawer(); });
+})();
+
+// ── FAQ accordion ──────────────────────────────────────────
+window.toggleFaq = function(trigger) {
+  const item   = trigger.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.faq-item.open').forEach(el => {
+    el.classList.remove('open');
+    el.querySelector('.faq-trigger').setAttribute('aria-expanded', 'false');
+  });
+  // Open clicked if it was closed
+  if (!isOpen) {
+    item.classList.add('open');
+    trigger.setAttribute('aria-expanded', 'true');
+  }
+};
+
+// ── Waveform: pause until in viewport ─────────────────────
+(function() {
+  const waveform = document.querySelector('.waveform');
+  if (!waveform || !('IntersectionObserver' in window)) return;
+  waveform.querySelectorAll('.wave-bar').forEach(b => b.style.animationPlayState = 'paused');
+  const obs = new IntersectionObserver(([entry]) => {
+    const state = entry.isIntersecting ? 'running' : 'paused';
+    waveform.querySelectorAll('.wave-bar').forEach(b => b.style.animationPlayState = state);
+  }, { threshold: 0.3 });
+  obs.observe(waveform);
+})();
+
+// ── Spin keyframe for loading state ───────────────────────
+(function() {
+  if (document.getElementById('spin-kf')) return;
+  const s = document.createElement('style');
+  s.id = 'spin-kf';
+  s.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+  document.head.appendChild(s);
+})();
 </script>
 </body>
 </html>
