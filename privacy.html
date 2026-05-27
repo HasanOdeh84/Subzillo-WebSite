@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Privacy Policy — Subzillo</title>
+<meta name="description" content="How Subzillo collects, uses and protects your personal data."/>
+<meta name="robots" content="noindex"/>
+<meta name="theme-color" content="#07040F"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ── Reset & Base ──────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Geist', system-ui, sans-serif;
+  background: #07040F;
+  color: #F4F1FB;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+a { color: #C96BFF; text-decoration: none; transition: color 0.2s; }
+a:hover { color: #fff; }
+
+/* ── CSS Variables ─────────────────────────────────────── */
+:root {
+  --bg:        #07040F;
+  --bg2:       #0E0820;
+  --surface:   rgba(255,255,255,0.05);
+  --surfaceHi: rgba(255,255,255,0.09);
+  --border:    rgba(255,255,255,0.10);
+  --borderHi:  rgba(255,255,255,0.18);
+  --from:      #A719DD;
+  --to:        #4489EB;
+  --mid:       #7C5BCC;
+  --grad:      linear-gradient(135deg, #A719DD 0%, #7C5BCC 50%, #4489EB 100%);
+  --glow:      rgba(167,25,221,0.35);
+  --glowB:     rgba(68,137,235,0.25);
+  --success:   #5CE4A8;
+  --warn:      #FFCB5C;
+  --danger:    #FF5A7A;
+  --text:      #F4F1FB;
+  --textDim:   rgba(244,241,251,0.55);
+  --textFaint: rgba(244,241,251,0.30);
+  --mono:      'JetBrains Mono', monospace;
+  --radius:    20px;
+}
+
+/* ── Scroll Progress Bar ───────────────────────────────── */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0%;
+  background: var(--grad);
+  z-index: 9999;
+  box-shadow: 0 0 10px var(--glow);
+  transition: width 0.08s linear;
+}
+
+/* ── Noise Overlay ─────────────────────────────────────── */
+.noise {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+/* ── Ambient Orbs ──────────────────────────────────────── */
+.orbs { position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.45;
+}
+.orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, #A719DD, transparent 70%); top: -200px; left: -150px; animation: drift1 18s ease-in-out infinite; }
+.orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, #4489EB, transparent 70%); top: -100px; right: -100px; animation: drift2 22s ease-in-out infinite; }
+.orb-3 { width: 400px; height: 400px; background: radial-gradient(circle, #A719DD, transparent 70%); bottom: 10%; left: 10%; animation: drift3 26s ease-in-out infinite; opacity: 0.25; }
+
+@keyframes drift1 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(60px,40px)} 66%{transform:translate(-40px,70px)} }
+@keyframes drift2 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(-70px,50px)} 66%{transform:translate(40px,-30px)} }
+@keyframes drift3 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(50px,-60px)} }
+
+/* ── Nav ───────────────────────────────────────────────── */
+nav#nav {
+  position: fixed;
+  top: 16px; left: 50%; transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 1100px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-radius: 16px;
+  background: rgba(7,4,15,0.82);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 18px; font-weight: 700; letter-spacing: -0.4px;
+  color: var(--text);
+}
+.nav-logo-icon {
+  width: 32px; height: 32px; border-radius: 9px;
+  background: var(--grad);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px var(--glow);
+  flex-shrink: 0;
+}
+.nav-back {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13.5px; color: var(--textDim); font-weight: 500;
+  transition: color 0.2s;
+}
+.nav-back:hover { color: var(--text); }
+
+/* ── Main content ──────────────────────────────────────── */
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 120px 24px 100px;
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--from);
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1.05;
+  color: var(--text);
+  margin-bottom: 18px;
+}
+h1 em {
+  font-style: italic;
+  font-weight: 700;
+  background: var(--grad);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.lead {
+  font-size: 17px;
+  color: var(--textDim);
+  line-height: 1.7;
+  margin-bottom: 14px;
+  max-width: 620px;
+}
+
+.updated {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--textFaint);
+  margin-bottom: 48px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Draft banner ──────────────────────────────────────── */
+.draft-banner {
+  margin: 0 0 40px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  background: rgba(255,203,92,0.07);
+  border: 1px solid rgba(255,203,92,0.22);
+  font-size: 13px;
+  color: rgba(255,203,92,0.90);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  line-height: 1.6;
+}
+.draft-banner svg { flex-shrink: 0; margin-top: 1px; }
+.draft-banner strong { color: rgba(255,203,92,1); font-weight: 600; }
+
+/* ── Content typography ────────────────────────────────── */
+h2 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: var(--text);
+  margin: 44px 0 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 24px 0 8px;
+}
+p {
+  font-size: 15px;
+  color: rgba(244,241,251,0.78);
+  margin-bottom: 14px;
+  line-height: 1.75;
+}
+ul, ol {
+  font-size: 15px;
+  color: rgba(244,241,251,0.78);
+  margin-bottom: 14px;
+  line-height: 1.75;
+  padding-left: 24px;
+}
+li { margin-bottom: 7px; }
+strong { color: var(--text); font-weight: 600; }
+
+/* ── Callout / highlight box ───────────────────────────── */
+.callout {
+  margin: 28px 0;
+  padding: 20px 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(167,25,221,0.08), rgba(68,137,235,0.04));
+  border: 1px solid rgba(167,25,221,0.22);
+}
+.callout-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--from);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.callout p { margin-bottom: 0; font-size: 14px; }
+
+/* ── Footer ────────────────────────────────────────────── */
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 64px 0 36px;
+  background: linear-gradient(180deg, transparent, rgba(167,25,221,0.03));
+}
+.footer-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 48px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--border);
+}
+.footer-logo {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 17px; font-weight: 700; letter-spacing: -0.4px;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.footer-tagline {
+  font-size: 13px; color: var(--textDim); line-height: 1.6;
+  margin-bottom: 16px;
+}
+.footer-contact-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--textDim);
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.footer-contact-pill:hover {
+  color: var(--text);
+  border-color: rgba(167,25,221,0.4);
+  background: rgba(167,25,221,0.06);
+}
+.footer-contact-pill svg { color: var(--from); }
+.footer-col { display: flex; flex-direction: column; gap: 11px; }
+.footer-col-title {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text); font-weight: 600;
+  margin-bottom: 4px;
+}
+.footer-col a {
+  font-size: 13px; color: var(--textDim);
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--text); }
+.footer-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 14px;
+  padding-top: 28px;
+}
+.footer-copy { font-size: 12px; color: var(--textFaint); font-family: var(--mono); }
+.footer-status {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 11px;
+  color: var(--textFaint);
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 6px var(--success);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+@media (max-width: 700px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; padding-bottom: 32px; }
+  .footer-brand { grid-column: 1 / -1; }
+  .footer-bottom { flex-direction: column; align-items: flex-start; }
+}
+@media (max-width: 440px) {
+  .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, .orb { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- Scroll Progress Bar -->
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+<!-- Noise Texture -->
+<div class="noise" aria-hidden="true"></div>
+
+<!-- Ambient Orbs -->
+<div class="orbs" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- Nav -->
+<nav id="nav" role="navigation" aria-label="Main navigation">
+  <a href="index.html" class="nav-logo" aria-label="Subzillo home">
+    <div class="nav-logo-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path d="M12 3C9 3 6 5 6 8c0 2 1 3.5 3 4.5L12 14l3-1.5c2-1 3-2.5 3-4.5 0-3-3-5-6-5z" fill="white" opacity="0.9"/>
+        <path d="M8 15l-2 4h12l-2-4" fill="white" opacity="0.5"/>
+      </svg>
+    </div>
+    Subzillo
+  </a>
+  <a href="index.html" class="nav-back" aria-label="Back to site">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to site
+  </a>
+</nav>
+
+<main>
+  <div class="eyebrow">Legal</div>
+  <h1>Privacy <em>Policy</em></h1>
+  <p class="lead">This page explains what data Subzillo collects, why we collect it, and the rights you have over your information. We default to collecting the minimum amount of data necessary to provide the service.</p>
+  <div class="updated">Last updated: To be set at launch</div>
+
+  <div class="draft-banner" role="note">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><strong>Pre-launch placeholder.</strong> This document is a working draft and will be reviewed and finalised by counsel before public launch. The summary below reflects the principles Subzillo is being built on.</div>
+  </div>
+
+  <h2>1. Who we are</h2>
+  <p>Subzillo is an AI-powered subscription management product. When this policy refers to "we", "us" or "Subzillo", it means the company that operates the Subzillo apps, web app and browser extensions.</p>
+
+  <h2>2. What we collect</h2>
+  <p>To run the service we collect a small set of categories:</p>
+  <ul>
+    <li><strong>Account data</strong> — your name, email, country and chosen plan.</li>
+    <li><strong>Subscription data you add</strong> — the names, prices, renewal dates and categories of the subscriptions you track. You control what goes in.</li>
+    <li><strong>Connected sources (optional)</strong> — if you choose to connect Gmail, Outlook or a bank statement scanner, we use those signals only to identify recurring charges.</li>
+    <li><strong>Usage telemetry</strong> — basic, anonymised metrics about which features you use so we can prioritise improvements.</li>
+  </ul>
+
+  <div class="callout">
+    <div class="callout-title">What we never collect</div>
+    <p>Your passwords for third-party services (the AI Browser handles those on-device only), your full browsing history, contact lists, or any data not directly required to manage subscriptions.</p>
+  </div>
+
+  <h2>3. How we use it</h2>
+  <p>We use the data above to:</p>
+  <ul>
+    <li>Show you a clear picture of your subscriptions, spending and renewals.</li>
+    <li>Power Subzi AI's recommendations (e.g. "you haven't used this in 60 days").</li>
+    <li>Let the AI Browser fetch, cancel, upgrade or downgrade subscriptions on your behalf — actions you trigger yourself.</li>
+    <li>Send you product updates, renewal reminders and account notices.</li>
+    <li>Improve reliability, security and performance.</li>
+  </ul>
+
+  <h2>4. Who we share it with</h2>
+  <p>We do not sell your personal data. We share data only with carefully selected processors needed to run the service — for example, cloud hosting, error reporting and payment processing. Each is bound by contract to handle data on our instructions and to comparable security standards.</p>
+
+  <h2>5. Where it lives</h2>
+  <p>Account data and subscription records are stored on encrypted infrastructure operated by industry-standard cloud providers. Credentials used by the AI Browser are encrypted on your device and never transmitted to Subzillo servers.</p>
+
+  <h2>6. Your rights</h2>
+  <p>Depending on where you live, you have rights to access, correct, export or delete the data we hold about you. You can act on most of these directly from your account settings, or by emailing <a href="mailto:privacy@subzillo.com">privacy@subzillo.com</a>.</p>
+
+  <h2>7. Cookies &amp; analytics</h2>
+  <p>The marketing website uses a small number of first-party cookies to remember preferences and measure traffic. We avoid third-party tracking pixels wherever possible. A cookie preferences screen will be available at launch.</p>
+
+  <h2>8. Children</h2>
+  <p>Subzillo is not intended for users under 16. We do not knowingly collect data from children. If you believe a minor has signed up, contact us and we will remove the account.</p>
+
+  <h2>9. Changes to this policy</h2>
+  <p>If we materially change how we handle data, we'll notify users by email and update the "Last updated" date at the top of this page. Continued use of the service after a change means you accept the updated policy.</p>
+
+  <h2>10. Contact</h2>
+  <p>Questions about this policy or about your personal data? Email <a href="mailto:privacy@subzillo.com">privacy@subzillo.com</a> or <a href="mailto:hello@subzillo.com">hello@subzillo.com</a>.</p>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-grid">
+
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <div class="nav-logo-icon" style="width:32px;height:32px;border-radius:9px" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3C9 3 6 5 6 8c0 2 1 3.5 3 4.5L12 14l3-1.5c2-1 3-2.5 3-4.5 0-3-3-5-6-5z" fill="white" opacity="0.9"/>
+              <path d="M8 15l-2 4h12l-2-4" fill="white" opacity="0.5"/>
+            </svg>
+          </div>
+          <span>Subzillo</span>
+        </div>
+        <p class="footer-tagline">Smart subscriptions. Smart spending. Smarter life.</p>
+        <a href="mailto:hello@subzillo.com" class="footer-contact-pill">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M22 7l-10 7L2 7"/></svg>
+          hello@subzillo.com
+        </a>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-title">Product</div>
+        <a href="index.html#features">Features</a>
+        <a href="index.html#ai-browser">AI Browser</a>
+        <a href="index.html#pricing">Pricing</a>
+        <a href="index.html#referrals">Referrals</a>
+        <a href="index.html#waitlist">Join Waitlist</a>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-title">Legal</div>
+        <a href="privacy.html" style="color: var(--text);">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+        <a href="mailto:hello@subzillo.com?subject=Contact%20Subzillo">Contact us</a>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Subzillo. Made with care, for everyone tired of subscription chaos.</div>
+      <div class="footer-status">
+        <span class="status-dot"></span>
+        All systems normal · v0.9 pre-launch
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* Scroll Progress Bar */
+const progressBar = document.getElementById('scrollProgress');
+function updateProgress() {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  progressBar.style.width = pct + '%';
+}
+window.addEventListener('scroll', updateProgress, { passive: true });
+
+/* Nav scroll tint */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.style.background = window.scrollY > 40
+    ? 'rgba(7,4,15,0.94)'
+    : 'rgba(7,4,15,0.82)';
+}, { passive: true });
+</script>
+</body>
+</html>
