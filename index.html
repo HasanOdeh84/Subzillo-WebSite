@@ -997,20 +997,18 @@ h1.hero-h1 em {
 
 /* Pricing bonus link (referral hint below cards) */
 .pricing-bonus {
-  margin-top: 28px;
-  text-align: center;
-  display: inline-flex;
+  display: flex;
   gap: 10px;
   align-items: center;
+  width: fit-content;
+  margin: 28px auto 0;
   padding: 12px 22px;
   border-radius: 999px;
   background: rgba(255,255,255,0.03);
   border: 1px solid var(--border);
   color: var(--textDim);
   font-size: 13.5px;
-  margin-left: 50%;
-  transform: translateX(-50%);
-  position: relative;
+  text-align: center;
 }
 .pricing-bonus svg { color: var(--from); flex-shrink: 0; }
 .pricing-bonus a {
@@ -3774,14 +3772,14 @@ footer {
         </div>
       </div>
 
-      <!-- Card 7: Family -->
+      <!-- Card 7: Email Integration -->
       <div class="bento-card reveal">
         <div class="bento-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M22 7l-10 7L2 7"/></svg>
         </div>
-        <div class="bento-label">Family plan</div>
-        <div class="bento-title">Share with 6 seats.</div>
-        <div class="bento-desc">Share subscriptions with the whole family. Each member gets their own view. One subscription, maximum value.</div>
+        <div class="bento-label">Email integration</div>
+        <div class="bento-title">Smart inbox scanning.</div>
+        <div class="bento-desc">Connect Gmail or Outlook and Subzillo automatically detects subscription confirmations, renewal notices and charges — no manual entry needed.</div>
       </div>
 
       <!-- Card 8: Multi-currency — WIDE -->
