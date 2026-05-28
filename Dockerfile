@@ -13,6 +13,7 @@ COPY --from=deps /app/node_modules ./node_modules
 
 # Copy application files (static assets + server)
 COPY server.js        ./
+COPY components.js    ./
 COPY index.html       ./
 COPY privacy.html     ./
 COPY terms.html       ./
