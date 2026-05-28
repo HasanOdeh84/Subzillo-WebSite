@@ -1,0 +1,15 @@
+node_modules
+.env
+*.db
+.claude
+.git
+.gitignore
+
+# Source logo files (only processed PNGs are needed at runtime)
+logo.png
+logo.webp
+logo2.png
+
+# Dev/tooling
+package-lock.json
+npm-debug.log*

@@ -1,25 +1,14 @@
 require('dotenv').config();
-const express    = require('express');
-const Database   = require('better-sqlite3');
-const nodemailer = require('nodemailer');
-const path       = require('path');
+const express         = require('express');
+const { Firestore }   = require('@google-cloud/firestore');
+const nodemailer      = require('nodemailer');
+const path            = require('path');
 
-const app = express();
-const db  = new Database(path.join(__dirname, 'waitlist.db'));
+const app      = express();
+const db       = new Firestore();
+const waitlist = db.collection('waitlist');
 
-// ── Database ───────────────────────────────────────────────
-db.exec(`
-  CREATE TABLE IF NOT EXISTS waitlist (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    email      TEXT    UNIQUE NOT NULL COLLATE NOCASE,
-    ip         TEXT,
-    referrer   TEXT,
-    created_at TEXT    DEFAULT (datetime('now')),
-    notified   INTEGER DEFAULT 0
-  )
-`);
-
-// ── SMTP transporter ───────────────────────────────────────
+// ── SMTP transporter ──────────────────────────────────────────
 const transporter = nodemailer.createTransport({
   host:   process.env.SMTP_HOST   || 'smtp.gmail.com',
   port:   parseInt(process.env.SMTP_PORT  || '465'),
@@ -30,11 +19,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// ── Middleware ─────────────────────────────────────────────
+// ── Middleware ─────────────────────────────────────────────────
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname)));
 
-// ── POST /api/waitlist ─────────────────────────────────────
+// ── POST /api/waitlist ─────────────────────────────────────────
 app.post('/api/waitlist', async (req, res) => {
   const { email } = req.body || {};
 
@@ -44,20 +33,34 @@ app.post('/api/waitlist', async (req, res) => {
 
   const safeEmail = String(email).trim().toLowerCase();
 
-  // Save to database
+  // Duplicate check
   try {
-    db.prepare(
-      'INSERT INTO waitlist (email, ip, referrer) VALUES (?, ?, ?)'
-    ).run(safeEmail, req.ip, req.headers.referer || null);
-  } catch (err) {
-    if (err.message.includes('UNIQUE constraint')) {
+    const existing = await waitlist.where('email', '==', safeEmail).limit(1).get();
+    if (!existing.empty) {
       return res.json({ success: true, already: true });
     }
-    console.error('DB error:', err.message);
+  } catch (err) {
+    console.error('Firestore read error:', err.message);
     return res.status(500).json({ error: 'Could not save — please try again' });
   }
 
-  const { n: total } = db.prepare('SELECT COUNT(*) as n FROM waitlist').get();
+  // Save to Firestore
+  try {
+    await waitlist.add({
+      email:     safeEmail,
+      ip:        req.ip        || null,
+      referrer:  req.headers.referer || null,
+      createdAt: new Date().toISOString(),
+      notified:  false,
+    });
+  } catch (err) {
+    console.error('Firestore write error:', err.message);
+    return res.status(500).json({ error: 'Could not save — please try again' });
+  }
+
+  // Total count for the email subject line
+  const snapshot = await waitlist.get();
+  const total    = snapshot.size;
 
   // Email notification to info@subzillo.com
   if (process.env.SMTP_USER && process.env.SMTP_PASS) {
@@ -88,23 +91,24 @@ app.post('/api/waitlist', async (req, res) => {
   res.json({ success: true });
 });
 
-// ── GET /api/waitlist/count (public) ──────────────────────
-app.get('/api/waitlist/count', (_req, res) => {
-  const { n } = db.prepare('SELECT COUNT(*) as n FROM waitlist').get();
-  res.json({ count: n });
+// ── GET /api/waitlist/count (public) ──────────────────────────
+app.get('/api/waitlist/count', async (_req, res) => {
+  const snapshot = await waitlist.get();
+  res.json({ count: snapshot.size });
 });
 
-// ── GET /api/waitlist/export (admin-protected CSV) ────────
-app.get('/api/waitlist/export', (req, res) => {
+// ── GET /api/waitlist/export (admin-protected CSV) ────────────
+app.get('/api/waitlist/export', async (req, res) => {
   if (!process.env.ADMIN_TOKEN || req.headers['x-admin-token'] !== process.env.ADMIN_TOKEN) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  const rows = db.prepare(
-    'SELECT id, email, ip, created_at FROM waitlist ORDER BY created_at DESC'
-  ).all();
+  const snapshot = await waitlist.orderBy('createdAt', 'desc').get();
   const csv = [
     'id,email,ip,joined_at',
-    ...rows.map(r => `${r.id},"${r.email}","${r.ip || ''}","${r.created_at}"`)
+    ...snapshot.docs.map(doc => {
+      const d = doc.data();
+      return `"${doc.id}","${d.email}","${d.ip || ''}","${d.createdAt}"`;
+    }),
   ].join('\n');
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', 'attachment; filename="subzillo-waitlist.csv"');
@@ -114,6 +118,6 @@ app.get('/api/waitlist/export', (req, res) => {
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`\n  ✦ Subzillo server  →  http://localhost:${PORT}`);
-  console.log(`  ✦ Waitlist DB      →  ${path.join(__dirname, 'waitlist.db')}`);
+  console.log(`  ✦ Firestore DB     →  collection: waitlist`);
   console.log(`  ✦ Export CSV       →  GET /api/waitlist/export  (x-admin-token header)\n`);
 });
