@@ -1,79 +1,207 @@
-# Subzillo — Marketing Website
+# Subzillo — Landing Page & Waitlist System
 
-The official pre-launch marketing website for **Subzillo**, an AI-powered subscription management app.
+Pre-launch marketing website for Subzillo — the AI copilot that tracks, cancels and negotiates subscriptions.
 
-## Pages
+**Live site:** https://subzillo.com
+**GCP Project:** `subzillo-website-prod`
+**Cloud Run Service:** `subzillo` (region: `us-central1`)
 
-| File | URL | Description |
-|------|-----|-------------|
-| `index.html` | `/` | Main landing page |
-| `privacy.html` | `/privacy` | Privacy Policy |
-| `terms.html` | `/terms` | Terms of Service |
-| `404.html` | (auto) | Custom 404 error page |
+---
 
-## Tech stack
+## Architecture
 
-- Pure HTML / CSS / JS — no build step, no dependencies
-- Hosted on **Firebase Hosting** (Google Cloud Platform)
-- CI/CD via **GitHub Actions** — every push to `main` auto-deploys
-
-## Local development
-
-Open any HTML file directly in your browser, or use a simple local server:
-
-```bash
-# Python (built-in)
-python3 -m http.server 3000
-
-# Node.js (npx)
-npx serve .
+```
+Browser → subzillo.com (GoDaddy DNS → Google Cloud)
+               ↓
+          Cloud Run  (Node.js container, auto-scales to zero)
+          ├── Serves static files (index.html, logo, OG image)
+          └── /api/waitlist  (POST / GET count / GET export)
+               ↓
+          Firestore  (database: "default", collection: "waitlist")
+               +
+          SMTP → info@subzillo.com  (via dev@subzillo.com App Password)
 ```
 
-Then visit `http://localhost:3000`.
+---
 
-## Deployment — Firebase Hosting (GCP)
+## Tech Stack
 
-### One-time setup
+| Layer | Technology |
+|---|---|
+| Frontend | Single-file HTML/CSS/JS (`index.html`) |
+| Backend | Node.js + Express (`server.js`) |
+| Database | Google Cloud Firestore (Native mode) |
+| Hosting | Google Cloud Run (containerised, auto-scales to zero) |
+| Domain | subzillo.com via GoDaddy DNS → Cloud Run |
+| SSL | Auto-provisioned by Google (Let's Encrypt) |
+| Email | Nodemailer → Gmail SMTP (dev@subzillo.com) |
+| Container | Docker (node:20-slim, multi-stage build) |
 
-1. Install Firebase CLI:
-   ```bash
-   npm install -g firebase-tools
-   ```
+---
 
-2. Log in and initialise the project:
-   ```bash
-   firebase login
-   firebase use subzillo-website   # or: firebase use --add
-   ```
+## File Structure
 
-3. Add the `FIREBASE_SERVICE_ACCOUNT` secret to GitHub:
-   - Go to **Firebase Console → Project Settings → Service Accounts**
-   - Generate a new private key (JSON)
-   - In GitHub repo → **Settings → Secrets → Actions** → add `FIREBASE_SERVICE_ACCOUNT` with the JSON content
-
-### Manual deploy
-
-```bash
-firebase deploy --only hosting
+```
+Subzillo-WebSite/
+├── index.html              # Entire frontend (HTML + CSS + JS)
+├── server.js               # Express backend — waitlist API + static serving
+├── package.json            # Node dependencies
+├── Dockerfile              # Container definition for Cloud Run
+├── .dockerignore           # Files excluded from container build
+├── .env                    # Local secrets — NOT committed to git
+├── .env.example            # Template showing all required env vars
+├── .gitignore
+│
+├── logo-transparent.png    # Subzillo logo (background removed) — used in nav
+├── logo-favicon.png        # 64×64 favicon
+├── og-image.png            # 1200×630 Open Graph image for social sharing
+├── favicon.svg             # SVG favicon fallback
+│
+└── .claude/                # Claude Code project files (local only, not committed)
 ```
 
-### Automatic deploy (CI/CD)
+---
 
-Every push to the `main` branch automatically deploys to production via `.github/workflows/deploy.yml`.
+## API Endpoints
 
-## Custom domain
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| `POST` | `/api/waitlist` | None | Submit email. Returns `{success:true}` or `{already:true}` for duplicates |
+| `GET` | `/api/waitlist/count` | None | Returns `{count: N}` — total signups |
+| `GET` | `/api/waitlist/export` | `x-admin-token` header | Download all signups as CSV |
 
-After deploying, connect your domain in **Firebase Console → Hosting → Add custom domain** (`subzillo.com`).
+**Export example:**
+```bash
+curl -H "x-admin-token: YOUR_ADMIN_TOKEN" \
+  https://subzillo.com/api/waitlist/export > waitlist.csv
+```
 
-## Security headers
+---
 
-The following headers are set globally via `firebase.json`:
+## Environment Variables
 
-- `X-Content-Type-Options: nosniff`
-- `X-Frame-Options: SAMEORIGIN`
-- `X-XSS-Protection: 1; mode=block`
-- `Referrer-Policy: strict-origin-when-cross-origin`
-- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+Set on Cloud Run — never stored in code or git.
 
-HTML files are served with `Cache-Control: no-cache` (always fresh).  
-Static assets (fonts, JS, CSS) use `max-age=31536000, immutable`.
+| Variable | Description |
+|---|---|
+| `SMTP_HOST` | SMTP server (smtp.gmail.com) |
+| `SMTP_PORT` | 465 |
+| `SMTP_SECURE` | true |
+| `SMTP_USER` | dev@subzillo.com |
+| `SMTP_PASS` | Gmail App Password (no spaces) |
+| `ADMIN_TOKEN` | Secret token for CSV export endpoint |
+| `GOOGLE_CLOUD_PROJECT` | GCP project ID (subzillo-website-prod) |
+| `FIRESTORE_DATABASE` | Firestore DB name — defaults to `default` |
+| `PORT` | Auto-set by Cloud Run (8080) |
+
+**Update any variable without redeploying:**
+```bash
+gcloud run services update subzillo \
+  --region us-central1 \
+  --update-env-vars "VARIABLE=new_value"
+```
+
+---
+
+## Local Development
+
+```bash
+# 1. Clone
+git clone https://github.com/HasanOdeh84/Subzillo-WebSite.git
+cd Subzillo-WebSite
+
+# 2. Install dependencies
+npm install
+
+# 3. Set up credentials
+cp .env.example .env
+# Edit .env with your real SMTP values
+
+# 4. Authenticate with GCP for local Firestore access
+gcloud auth application-default login
+
+# 5. Start server
+node server.js
+
+# Open http://localhost:3001
+```
+
+---
+
+## Deployment
+
+**Standard deploy (after any change):**
+```bash
+cd /Users/Hasan/Desktop/Subzillo-WebSite
+
+gcloud run deploy subzillo \
+  --source . \
+  --region us-central1 \
+  --allow-unauthenticated
+```
+Takes ~3 minutes. Zero downtime — Cloud Run shifts traffic to the new revision automatically.
+
+**Roll back to previous version:**
+```bash
+# List all revisions
+gcloud run revisions list --service subzillo --region us-central1
+
+# Roll back instantly
+gcloud run services update-traffic subzillo \
+  --to-revisions REVISION_NAME=100 \
+  --region us-central1
+```
+
+---
+
+## Viewing Waitlist Data
+
+**Firestore Console (GUI):**
+https://console.cloud.google.com/firestore/databases/default/data/editor?project=subzillo-website-prod
+
+**CSV export:**
+```bash
+curl -H "x-admin-token: YOUR_TOKEN" \
+  https://subzillo.com/api/waitlist/export > waitlist.csv
+```
+
+**Live count:**
+```bash
+curl https://subzillo.com/api/waitlist/count
+```
+
+---
+
+## Logs & Monitoring
+
+```bash
+# Stream live logs
+gcloud run services logs tail subzillo --region us-central1
+
+# Recent logs
+gcloud run services logs read subzillo --region us-central1 --limit 50
+```
+
+GCP Console dashboard:
+https://console.cloud.google.com/run/detail/us-central1/subzillo/metrics?project=subzillo-website-prod
+
+---
+
+## Cost
+
+| Service | Free tier | Expected |
+|---|---|---|
+| Cloud Run | 2M requests/month free | ~$0 pre-launch |
+| Firestore | 50K reads + 40K writes/day free | ~$0 |
+| Cloud Build | 120 min/day free | ~$0 |
+| **Total** | | **~$0–2/month** |
+
+---
+
+## Key Contacts
+
+| Role | Email |
+|---|---|
+| GCP Owner | dev@subzillo.com |
+| Waitlist notifications | info@subzillo.com (→ odeh@ + alkassab@) |
+| Domain registrar | GoDaddy — subzillo.com |
