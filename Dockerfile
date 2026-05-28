@@ -14,6 +14,8 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy application files (static assets + server)
 COPY server.js        ./
 COPY index.html       ./
+COPY privacy.html     ./
+COPY terms.html       ./
 COPY logo-transparent.png ./
 COPY logo-favicon.png     ./
 COPY og-image.png         ./
