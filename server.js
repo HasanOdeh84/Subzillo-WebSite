@@ -5,7 +5,10 @@ const nodemailer      = require('nodemailer');
 const path            = require('path');
 
 const app      = express();
-const db       = new Firestore();
+const db       = new Firestore({
+  projectId:  process.env.GOOGLE_CLOUD_PROJECT || process.env.GCLOUD_PROJECT || 'subzillo-website-prod',
+  databaseId: process.env.FIRESTORE_DATABASE  || 'default',
+});
 const waitlist = db.collection('waitlist');
 
 // ── SMTP transporter ──────────────────────────────────────────
