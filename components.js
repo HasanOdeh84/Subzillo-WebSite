@@ -224,6 +224,7 @@
       <!-- Legal column -->
       <div class="sz-footer-col">
         <div class="sz-footer-col-title">Legal</div>
+        <a href="support.html" class="${page === 'support.html' ? 'sz-active' : ''}">Support</a>
         <a href="privacy.html" class="${page === 'privacy.html' ? 'sz-active' : ''}">Privacy Policy</a>
         <a href="terms.html"   class="${page === 'terms.html'   ? 'sz-active' : ''}">Terms of Service</a>
         <a href="mailto:info@subzillo.com?subject=Contact%20Subzillo">Contact us</a>
