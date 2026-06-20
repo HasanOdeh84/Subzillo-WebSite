@@ -17,6 +17,7 @@ COPY components.js    ./
 COPY index.html       ./
 COPY privacy.html     ./
 COPY terms.html       ./
+COPY support.html     ./
 COPY logo-transparent.png ./
 COPY logo-favicon.png     ./
 COPY og-image.png         ./

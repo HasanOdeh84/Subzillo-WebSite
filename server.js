@@ -143,6 +143,11 @@ app.post('/api/waitlist', async (req, res) => {
   res.json({ success: true });
 });
 
+// ── Static page clean URLs ────────────────────────────────────
+app.get('/support', (_req, res) => res.sendFile(path.join(__dirname, 'support.html')));
+app.get('/privacy', (_req, res) => res.sendFile(path.join(__dirname, 'privacy.html')));
+app.get('/terms',   (_req, res) => res.sendFile(path.join(__dirname, 'terms.html')));
+
 // ── GET /api/waitlist/count (public) ──────────────────────────
 app.get('/api/waitlist/count', async (_req, res) => {
   const snapshot = await waitlist.get();
